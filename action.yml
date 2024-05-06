@@ -14,10 +14,10 @@ runs:
   using: 'composite'
   steps:
     - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: meadow-package
-          path: PACKAGE_PATH
+      uses: actions/download-artifact@v4
+      with:
+        name: meadow-package
+        path: PACKAGE_PATH
     - name: Upload Package
       run: |
         DESCRIPTION="Build for ${GITHUB_REF_NAME} at commit ${GITHUB_SHA::8} on $(date +'%Y-%m-%d %H:%M:%S')"
@@ -28,4 +28,4 @@ runs:
         OUTPUT=$(meadow cloud package upload "${PACKAGE_PATH}" -o "${{ inputs.organization_id }}" -d "$DESCRIPTION" --apikey "${{ inputs.api_key }}" $HOST_PARAM)
         PACKAGE_ID=$(echo "$OUTPUT" | grep "Package Id:" | awk '{print $NF}')
         echo "PACKAGE_ID=${PACKAGE_ID}" >> $GITHUB_ENV
-      shell: bash    
+      shell: bash
