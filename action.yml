@@ -1,4 +1,4 @@
-name: 'Upload Meadow MPAK'
+name: 'Deploy and Upload Meadow MPAK'
 description: 'Upload Meadow MPAK to cloud'
 inputs:
   organization_id:
@@ -7,17 +7,94 @@ inputs:
   api_key:
     description: 'API Key'
     required: true
+  os_version:
+    description: 'OS Version'
+    required: false
+  cli_version:
+    description: 'CLI Version'
+    required: false
+  configs:
+    description: 'Key-value pairs used to replace *.yaml configs'
+    required: false
+    default: '{}'
   host:
     description: 'API URL'
-    required: true
+    required: false
 runs:
   using: 'composite'
   steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
       with:
-        name: meadow-package
-        path: PACKAGE_PATH
+        dotnet-version: '6.0.x'
+    - name: Restore dependencies
+      run: dotnet restore
+      shell: bash
+    - name: Build
+      run: dotnet build --no-restore
+      shell: bash
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+      shell: bash
+    - name: Install Meadow.CLI
+      run: |
+        if [[ -n "${{ inputs.cli_version }}" ]]; then
+          dotnet tool install WildernessLabs.Meadow.CLI --global --version "${{ inputs.cli_version }}"
+        else
+          dotnet tool install WildernessLabs.Meadow.CLI --global
+        fi
+      shell: bash
+    - name: Install Firmware
+      run: |
+        if [[ -n "${{ inputs.os_version }}" ]]; then
+          meadow firmware download -v "${{ inputs.os_version }}"
+          meadow firmware default "${{ inputs.os_version }}"
+        else
+          meadow firmware download
+        fi
+      shell: bash
+    - name: Replace Environment Variables in YAML files
+      run: |
+        # Convert the JSON string from configs input to environment variables
+        CONFIGS_JSON='${{ inputs.configs }}'
+        if [[ "$CONFIGS_JSON" != "{}" ]]; then
+          echo "Configurations to process: $CONFIGS_JSON"
+          
+          # Use jq to parse JSON and replace in YAML files
+          echo $CONFIGS_JSON | jq -r 'to_entries|map("\(.key)=\(.value)")|.[]' > configs.env
+          source configs.env
+
+          # Find all YAML files to process
+          YAML_FILES=$(find . -name '*.yaml')
+          echo "YAML files to process: $YAML_FILES"
+          
+          # Loop through each config and replace in files
+          for config in $(cat configs.env); do
+            config_name=$(echo "$config" | cut -d '=' -f 1)
+            config_value=$(echo "$config" | cut -d '=' -f 2)
+            config_placeholder="{{${config_name}}}"
+
+            echo "Replacing $config_placeholder with $config_value in all YAML files"
+
+            for file in $YAML_FILES; do
+              echo "Processing $file"
+              if grep -q "$config_placeholder" "$file"; then
+                sed -i "s/$config_placeholder/$config_value/g" "$file"
+              fi
+            done
+          done
+        else
+          echo "No configurations to process, skipping replacement step."
+        fi
+      shell: bash
+    - name: Create Package
+      run: |
+        meadow app build
+        meadow cloud package create -v "${{ inputs.os_version }}"
+        PACKAGE_PATH=$(find . -name '*.mpak')
+        echo "PACKAGE_PATH=${PACKAGE_PATH}" >> $GITHUB_ENV
+      shell: bash   
     - name: Upload Package
       run: |
         DESCRIPTION="Build for ${GITHUB_REF_NAME} at commit ${GITHUB_SHA::8} on $(date +'%Y-%m-%d %H:%M:%S')"
