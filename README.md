@@ -39,7 +39,7 @@ on:
       - main
 
 jobs:
-    upload:
+  upload:
     runs-on: ubuntu-latest
     steps:
       - name: Build and Upload Meadow MPAK Action
