@@ -47,7 +47,3 @@ jobs:
         with:
           organization_id: '123456789'
           api_key: ${{ secrets.API_KEY }}
-          host: 'https://staging.meadowcloud.dev' # Optional, set this to the host url if required
-          cli_version: "2.0.30" # Optional, set this to the CLI version if required
-          os_version: "1.10.0.0" # Optional, set this to the OS version if required        
-          configs : '{"CONFIG_SSID": "${{ secrets.CONFIG_SSID }}", "CONFIG_PASSWORD": "${{ secrets.CONFIG_PASSWORD }}"}' # Optional, set this to a matching token to replaced within your *.yaml files if required
