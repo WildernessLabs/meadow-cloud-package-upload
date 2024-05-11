@@ -20,6 +20,9 @@ inputs:
   host:
     description: 'API URL'
     required: false
+branding:
+  icon: 'logo.png'
+  color: 'white'
 runs:
   using: 'composite'
   steps:
