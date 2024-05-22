@@ -22,7 +22,7 @@ inputs:
     required: false
 branding:
   icon: 'cloud'
-  color: 'white'
+  color: 'orange'
 runs:
   using: 'composite'
   steps:
