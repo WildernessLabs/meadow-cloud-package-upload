@@ -1,5 +1,5 @@
-name: 'Build and upload packages to Meadow.Cloud'
-description: 'Upload Meadow MPAK to cloud'
+name: 'Meadow.Cloud Package Upload'
+description: 'Build and upload packages to Meadow.Cloud'
 inputs:
   organization_id:
     description: 'Organization ID'
