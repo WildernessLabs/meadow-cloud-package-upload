@@ -21,7 +21,7 @@ inputs:
     description: 'API URL'
     required: false
 branding:
-  icon: 'logo.png'
+  icon: 'cloud'
   color: 'white'
 runs:
   using: 'composite'
