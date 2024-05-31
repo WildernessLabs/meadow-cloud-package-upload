@@ -20,6 +20,9 @@ inputs:
   host:
     description: 'API URL'
     required: false
+  project_path:
+    description: 'Path to the project directory'
+    required: true
 branding:
   icon: 'cloud'
   color: 'white'
@@ -32,13 +35,13 @@ runs:
       with:
         dotnet-version: '6.0.x'
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ${{ inputs.project_path }}
       shell: bash
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ${{ inputs.project_path }} --no-restore
       shell: bash
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ${{ inputs.project_path }} --no-build --verbosity normal
       shell: bash
     - name: Install Meadow.CLI
       run: |
@@ -69,7 +72,7 @@ runs:
           source configs.env
 
           # Find all YAML files to process
-          YAML_FILES=$(find . -name '*.yaml')
+          YAML_FILES=$(find ${{ inputs.project_path }} -name '*.yaml')
           echo "YAML files to process: $YAML_FILES"
           
           # Loop through each config and replace in files
@@ -93,6 +96,7 @@ runs:
       shell: bash
     - name: Create Package
       run: |
+        cd ${{ inputs.project_path }}
         meadow app build
         meadow cloud package create -v "${{ inputs.os_version }}"
         PACKAGE_PATH=$(find . -name '*.mpak')
