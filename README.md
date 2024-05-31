@@ -14,6 +14,9 @@ The "Deploy and Upload Meadow MPAK" action combines building, testing, packaging
 ### `api_key`
 **Required** The API key for authenticating with Meadow's cloud services.
 
+### `project_path`
+**Required** The project path to where the project root directory lives in the repository.
+
 ### `os_version`
 Optional. Specifies the operating system version for the Meadow device, allowing specific firmware versions to be targeted.
 
