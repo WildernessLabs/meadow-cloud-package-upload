@@ -35,19 +35,30 @@ runs:
       with:
         dotnet-version: '6.0.x'
     - name: Change Directory to Project Path
-      run: cd ${{ inputs.project_path }}
+      run: |
+        cd ${{ inputs.project_path }}
+        echo "Current directory: $(pwd)"
+        echo "Contents:"
+        ls -la
       shell: bash
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        cd ${{ inputs.project_path }}
+        dotnet restore
       shell: bash
     - name: Build
-      run: dotnet build --no-restore
+      run: |
+        cd ${{ inputs.project_path }}
+        dotnet build --no-restore
       shell: bash
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: |
+        cd ${{ inputs.project_path }}
+        dotnet test --no-build --verbosity normal
       shell: bash
     - name: Install Meadow.CLI
       run: |
+        cd ${{ inputs.project_path }}
         if [[ -n "${{ inputs.cli_version }}" ]]; then
           dotnet tool install WildernessLabs.Meadow.CLI --global --version "${{ inputs.cli_version }}"
         else
@@ -56,6 +67,7 @@ runs:
       shell: bash
     - name: Install Firmware
       run: |
+        cd ${{ inputs.project_path }}
         if [[ -n "${{ inputs.os_version }}" ]]; then
           meadow firmware download -v "${{ inputs.os_version }}"
           meadow firmware default "${{ inputs.os_version }}"
@@ -65,6 +77,7 @@ runs:
       shell: bash
     - name: Replace Environment Variables in YAML files
       run: |
+        cd ${{ inputs.project_path }}
         # Convert the JSON string from configs input to environment variables
         CONFIGS_JSON='${{ inputs.configs }}'
         if [[ "$CONFIGS_JSON" != "{}" ]]; then
@@ -98,14 +111,17 @@ runs:
         fi
       shell: bash
     - name: Create Package
-      run: |    
+      run: |
+        cd ${{ inputs.project_path }}
         meadow app build
         meadow cloud package create -v "${{ inputs.os_version }}"
         PACKAGE_PATH=$(find . -name '*.mpak')
         echo "PACKAGE_PATH=${PACKAGE_PATH}" >> $GITHUB_ENV
+        echo "Package created at ${PACKAGE_PATH}"
       shell: bash   
     - name: Upload Package
       run: |
+        cd ${{ inputs.project_path }}
         DESCRIPTION="Build for ${GITHUB_REF_NAME} at commit ${GITHUB_SHA::8} on $(date +'%Y-%m-%d %H:%M:%S')"
         HOST_PARAM=""
         if [[ -n "${{ inputs.host }}" ]]; then
