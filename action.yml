@@ -34,13 +34,6 @@ runs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
-    - name: Change Directory to Project Path
-      run: |
-        cd ${{ inputs.project_path }}
-        echo "Current directory: $(pwd)"
-        echo "Contents:"
-        ls -la
-      shell: bash
     - name: Restore dependencies
       run: |
         cd ${{ inputs.project_path }}
