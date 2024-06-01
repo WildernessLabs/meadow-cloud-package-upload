@@ -35,21 +35,16 @@ runs:
       with:
         dotnet-version: '6.0.x'
     - name: Restore dependencies
-      run: |
-        dotnet restore ${{ inputs.project_path }}
+      run: dotnet restore ${{ inputs.project_path }}
       shell: bash
     - name: Build
-      run: |
-        dotnet build ${{ inputs.project_path }} --no-restore 
+      run: dotnet build ${{ inputs.project_path }} --no-restore 
       shell: bash
     - name: Test
-      run: |
-        cd ${{ inputs.project_path }}
-        dotnet test --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal
       shell: bash
     - name: Install Meadow.CLI
       run: |
-        cd ${{ inputs.project_path }}
         if [[ -n "${{ inputs.cli_version }}" ]]; then
           dotnet tool install WildernessLabs.Meadow.CLI --global --version "${{ inputs.cli_version }}"
         else
