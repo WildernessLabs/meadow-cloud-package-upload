@@ -41,7 +41,7 @@ runs:
       run: dotnet build ${{ inputs.project_path }} --no-restore 
       shell: bash
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ${{ inputs.project_path }} --no-build --verbosity normal
       shell: bash
     - name: Install Meadow.CLI
       run: |
@@ -106,7 +106,6 @@ runs:
       shell: bash   
     - name: Upload Package
       run: |
-        cd ${{ inputs.project_path }}
         DESCRIPTION="Build for ${GITHUB_REF_NAME} at commit ${GITHUB_SHA::8} on $(date +'%Y-%m-%d %H:%M:%S')"
         HOST_PARAM=""
         if [[ -n "${{ inputs.host }}" ]]; then
