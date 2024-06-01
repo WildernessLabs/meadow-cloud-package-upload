@@ -36,13 +36,11 @@ runs:
         dotnet-version: '6.0.x'
     - name: Restore dependencies
       run: |
-        cd ${{ inputs.project_path }}
-        dotnet restore
+        dotnet restore ${{ inputs.project_path }}
       shell: bash
     - name: Build
       run: |
-        cd ${{ inputs.project_path }}
-        dotnet build --no-restore
+        dotnet build ${{ inputs.project_path }} --no-restore 
       shell: bash
     - name: Test
       run: |
