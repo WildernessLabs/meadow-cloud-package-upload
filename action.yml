@@ -53,7 +53,6 @@ runs:
       shell: bash
     - name: Install Firmware
       run: |
-        cd ${{ inputs.project_path }}
         if [[ -n "${{ inputs.os_version }}" ]]; then
           meadow firmware download -v "${{ inputs.os_version }}"
           meadow firmware default "${{ inputs.os_version }}"
